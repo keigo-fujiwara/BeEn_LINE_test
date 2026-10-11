@@ -1,75 +1,95 @@
 {
   "closeDaysBefore": 2,
-  "courses": [
+  "campuses": [
     {
-      "campus": "京大本校",
-      "title": "オリジナルWebページ開発",
-      "date": "2027-02-20",
-      "start": "11:00",
-      "end": "12:00"
+      "name": "京大本校",
+      "lineUrl": "https://page.line.me/942ydzjx?oat_content=url&openQrModal=true",
+      "courses": [
+        {
+          "title": "オリジナルWebページ開発",
+          "date": "2027-02-20",
+          "start": "11:00",
+          "end": "12:00"
+        },
+        {
+          "title": "バイブコーディング",
+          "date": "2027-02-21",
+          "start": "11:00",
+          "end": "12:00"
+        }
+      ]
     },
     {
-      "campus": "京大本校",
-      "title": "バイブコーディング",
-      "date": "2027-02-21",
-      "start": "11:00",
-      "end": "12:00"
+      "name": "梅田校",
+      "lineUrl": "https://line.me/R/ti/p/@759lvtlr?openQrModal=true",
+      "courses": [
+        {
+          "title": "オリジナルWebページ開発",
+          "date": "2027-02-20",
+          "start": "11:00",
+          "end": "12:00"
+        },
+        {
+          "title": "バイブコーディング",
+          "date": "2027-02-21",
+          "start": "11:00",
+          "end": "12:00"
+        }
+      ]
     },
     {
-      "campus": "梅田校",
-      "title": "オリジナルWebページ開発",
-      "date": "2027-02-20",
-      "start": "11:00",
-      "end": "12:00"
+      "name": "飯田橋校",
+      "lineUrl": "https://line.me/R/ti/p/@028tlecq?oat_content=url&ts=07221501&openQrModal=true",
+      "courses": [
+        {
+          "title": "オリジナルWebページ開発",
+          "date": "2027-02-20",
+          "start": "11:00",
+          "end": "12:00"
+        },
+        {
+          "title": "バイブコーディング",
+          "date": "2027-02-21",
+          "start": "11:00",
+          "end": "12:00"
+        }
+      ]
     },
     {
-      "campus": "梅田校",
-      "title": "バイブコーディング",
-      "date": "2027-02-21",
-      "start": "11:00",
-      "end": "12:00"
+      "name": "横浜校",
+      "lineUrl": "https://page.line.me/016pbnwr?oat_content=url&openQrModal=true",
+      "courses": [
+        {
+          "title": "オリジナルWebページ開発",
+          "date": "2027-02-20",
+          "start": "11:00",
+          "end": "12:00"
+        },
+        {
+          "title": "バイブコーディング",
+          "date": "2027-02-20",
+          "start": "13:00",
+          "end": "14:00"
+        }
+      ]
     },
     {
-      "campus": "飯田橋校",
-      "title": "オリジナルWebページ開発",
-      "date": "2027-02-20",
-      "start": "11:00",
-      "end": "12:00"
-    },
-    {
-      "campus": "飯田橋校",
-      "title": "バイブコーディング",
-      "date": "2027-02-21",
-      "start": "11:00",
-      "end": "12:00"
-    },
-    {
-      "campus": "横浜校",
-      "title": "オリジナルWebページ開発",
-      "date": "2027-02-20",
-      "start": "11:00",
-      "end": "12:00"
-    },
-    {
-      "campus": "横浜校",
-      "title": "バイブコーディング",
-      "date": "2027-02-20",
-      "start": "13:00",
-      "end": "14:00"
-    },
-    {
-      "campus": "首里校",
-      "title": "オリジナルWebページ開発",
-      "date": "2027-02-20",
-      "start": "11:00",
-      "end": "12:00"
-    },
-    {
-      "campus": "首里校",
-      "title": "バイブコーディング",
-      "date": "2027-02-20",
-      "start": "13:00",
-      "end": "14:00"
+      "name": "首里校",
+      "lineUrl": "https://line.me/R/ti/p/@153tdlvg?ts=07221502&oat_content=url&openQrModal=true",
+      "courses": [
+        {
+          "title": "オリジナルWebページ開発",
+          "date": "2027-02-20",
+          "start": "11:00",
+          "end": "12:00"
+        },
+        {
+          "title": "バイブコーディング",
+          "date": "2027-02-20",
+          "start": "13:00",
+          "end": "14:00"
+        }
+      ]
     }
   ]
 }

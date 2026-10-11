@@ -11,14 +11,6 @@ const GRADES = [
   "新高校３年生"
 ];
 
-const CAMPUS_LIST = [
-  { name: "京大本校", lineUrl: "https://page.line.me/942ydzjx?oat_content=url&openQrModal=true" },
-  { name: "梅田校", lineUrl: "https://line.me/R/ti/p/@759lvtlr?openQrModal=true" },
-  { name: "飯田橋校", lineUrl: "https://line.me/R/ti/p/@028tlecq?oat_content=url&ts=07221501&openQrModal=true" },
-  { name: "横浜校", lineUrl: "https://page.line.me/016pbnwr?oat_content=url&openQrModal=true" },
-  { name: "首里校", lineUrl: "https://line.me/R/ti/p/@153tdlvg?ts=07221502&oat_content=url&openQrModal=true" }
-];
-
 const WEEKDAYS = ["日", "月", "火", "水", "木", "金", "土"];
 let CAMPUSES = [];
 
@@ -80,13 +72,13 @@ async function loadCampuses() {
   const catalog = await response.json();
   const closeDaysBefore = Number(catalog.closeDaysBefore);
   const deadline = Number.isFinite(closeDaysBefore) ? closeDaysBefore : 2;
-  CAMPUSES = CAMPUS_LIST.map(campus => ({
+  CAMPUSES = (catalog.campuses || []).map(campus => ({
     name: campus.name,
     lineUrl: campus.lineUrl,
-    courses: (catalog.courses || [])
-      .filter(course => course.campus === campus.name && isCourseOpen(course.date, deadline))
+    courses: (campus.courses || [])
+      .filter(course => isCourseOpen(course.date, deadline))
       .map(formatCourseLabel)
-  })).filter(campus => campus.courses.length > 0);
+  })).filter(campus => campus.name && campus.courses.length > 0);
 }
 
 function findCampus(name) {
