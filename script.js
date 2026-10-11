@@ -58,10 +58,15 @@ function isCourseOpen(dateStr, closeDaysBefore) {
   return daysUntilCourse(dateStr) > closeDaysBefore;
 }
 
-function formatCourseLabel(course) {
+function formatCourse(course) {
   const [year, month, day] = course.date.split("-").map(Number);
   const weekday = WEEKDAYS[new Date(Date.UTC(year, month - 1, day)).getUTCDay()];
-  return `${course.title} ${month}月${day}日（${weekday}）${course.start}-${course.end}`;
+  const datetime = `${month}月${day}日（${weekday}）${course.start}-${course.end}`;
+  return {
+    title: course.title,
+    datetime,
+    label: `${course.title} ${datetime}`
+  };
 }
 
 async function loadCampuses() {
@@ -79,7 +84,7 @@ async function loadCampuses() {
       .slice()
       .sort(compareCourses)
       .filter(course => isCourseOpen(course.date, deadline))
-      .map(formatCourseLabel)
+      .map(formatCourse)
   })).filter(campus => campus.name && campus.courses.length > 0);
 }
 
@@ -98,7 +103,7 @@ function selectedCourses() {
   if (!campus) return [];
   return [...document.querySelectorAll("input[name='courses']:checked")]
     .map(input => input.value)
-    .filter(value => campus.courses.includes(value));
+    .filter(value => campus.courses.some(course => course.label === value));
 }
 
 function readForm() {
@@ -137,7 +142,7 @@ function refreshNav(step) {
   }
 }
 
-function createChoice(type, name, value, checked) {
+function createChoice(type, name, value, checked, course) {
   const label = document.createElement("label");
   label.className = "choice";
   const input = document.createElement("input");
@@ -147,7 +152,17 @@ function createChoice(type, name, value, checked) {
   input.checked = Boolean(checked);
   if (input.checked) label.classList.add("is-selected");
   const text = document.createElement("span");
-  text.textContent = value;
+  if (course) {
+    const title = document.createElement("span");
+    title.className = "choice-title";
+    title.textContent = course.title;
+    const datetime = document.createElement("span");
+    datetime.className = "choice-datetime";
+    datetime.textContent = course.datetime;
+    text.append(title, datetime);
+  } else {
+    text.textContent = value;
+  }
   input.addEventListener("change", () => {
     if (type === "radio") {
       label.parentElement.querySelectorAll(".choice").forEach(choice => {
@@ -185,7 +200,7 @@ function renderCourses() {
     return;
   }
   campus.courses.forEach(course => {
-    list.appendChild(createChoice("checkbox", "courses", course, keep.has(course)));
+    list.appendChild(createChoice("checkbox", "courses", course.label, keep.has(course.label), course));
   });
   refreshNav(document.querySelector(".step[data-step='3']"));
 }
@@ -210,13 +225,34 @@ function renderConfirm() {
     labelEl.textContent = label;
     const valueEl = document.createElement("span");
     valueEl.className = "confirm-value";
-    valueEl.textContent = value;
+    if (stepNumber === 3) {
+      appendCourseLines(valueEl, data.courses);
+    } else {
+      valueEl.textContent = value;
+    }
     button.append(labelEl, valueEl);
     button.addEventListener("click", () => {
       returnToConfirm = true;
       showStep(stepNumber);
     });
     list.appendChild(button);
+  });
+}
+
+function appendCourseLines(container, labels) {
+  const campus = findCampus(selectedRadio("campus"));
+  labels.forEach(label => {
+    const course = campus && campus.courses.find(item => item.label === label);
+    const block = document.createElement("span");
+    block.className = "confirm-course";
+    const title = document.createElement("span");
+    title.className = "confirm-course-title";
+    title.textContent = course ? course.title : label;
+    const datetime = document.createElement("span");
+    datetime.className = "confirm-course-datetime";
+    datetime.textContent = course ? course.datetime : "";
+    block.append(title, datetime);
+    container.appendChild(block);
   });
 }
 

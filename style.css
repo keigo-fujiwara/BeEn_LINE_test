@@ -116,8 +116,34 @@ h2 {
   cursor: pointer;
 }
 
-.choice span {
+.choice > span {
   flex: 1;
+  min-width: 0;
+}
+
+.choice-title,
+.confirm-course-title {
+  display: block;
+  font-weight: bold;
+  line-height: 1.4;
+}
+
+.choice-datetime,
+.confirm-course-datetime {
+  display: block;
+  margin-top: 2px;
+  color: #666;
+  font-size: 14px;
+  font-weight: normal;
+  line-height: 1.4;
+}
+
+.confirm-course {
+  display: block;
+}
+
+.confirm-course + .confirm-course {
+  margin-top: 10px;
 }
 
 .choice input {
