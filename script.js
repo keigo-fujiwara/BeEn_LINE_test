@@ -288,8 +288,18 @@ function goNext(step) {
   showStep(stepNumber + 1);
 }
 
+function courseParts(label) {
+  const campus = findCampus(selectedRadio("campus"));
+  const course = campus && campus.courses.find(item => item.label === label);
+  if (course) return { title: course.title, datetime: course.datetime };
+  return { title: label, datetime: "" };
+}
+
 function buildMessage(data) {
-  const courses = data.courses.map(course => `・${course}`).join("\n");
+  const courses = data.courses.map(label => {
+    const course = courseParts(label);
+    return course.datetime ? `・${course.title}\n　${course.datetime}` : `・${course.title}`;
+  }).join("\n");
   return [
     "【2027年度 春の無料講座 申込】",
     `新学年：${data.grade}`,
@@ -313,15 +323,31 @@ function flexField(label, value) {
   };
 }
 
+function flexCourse(label, index) {
+  const course = courseParts(label);
+  const contents = [
+    { type: "text", text: course.title, size: "sm", color: "#222222", weight: "bold", wrap: true }
+  ];
+  if (course.datetime) {
+    contents.push({
+      type: "text",
+      text: course.datetime,
+      size: "xs",
+      color: "#888888",
+      wrap: true,
+      margin: "xs"
+    });
+  }
+  return {
+    type: "box",
+    layout: "vertical",
+    margin: index === 0 ? "sm" : "lg",
+    contents
+  };
+}
+
 function buildFlexMessage(data) {
-  const courseContents = data.courses.map((course, index) => ({
-    type: "text",
-    text: course,
-    size: "sm",
-    color: "#222222",
-    wrap: true,
-    margin: index === 0 ? "sm" : "md"
-  }));
+  const courseContents = data.courses.map((label, index) => flexCourse(label, index));
 
   return {
     type: "flex",
