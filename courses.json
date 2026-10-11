@@ -6,18 +6,6 @@
       "lineUrl": "https://page.line.me/942ydzjx?oat_content=url&openQrModal=true",
       "courses": [
         {
-          "title": "オリジナルWebページ開発",
-          "date": "2027-02-20",
-          "start": "11:00",
-          "end": "12:00"
-        },
-        {
-          "title": "バイブコーディング",
-          "date": "2027-02-21",
-          "start": "11:00",
-          "end": "12:00"
-        },
-        {
           "title": "ゲーム制作入門",
           "date": "2026-09-12",
           "start": "14:00",
@@ -34,13 +22,7 @@
           "date": "2026-10-25",
           "start": "13:00",
           "end": "14:00"
-        }
-      ]
-    },
-    {
-      "name": "梅田校",
-      "lineUrl": "https://line.me/R/ti/p/@759lvtlr?openQrModal=true",
-      "courses": [
+        },
         {
           "title": "オリジナルWebページ開発",
           "date": "2027-02-20",
@@ -52,7 +34,13 @@
           "date": "2027-02-21",
           "start": "11:00",
           "end": "12:00"
-        },
+        }
+      ]
+    },
+    {
+      "name": "梅田校",
+      "lineUrl": "https://line.me/R/ti/p/@759lvtlr?openQrModal=true",
+      "courses": [
         {
           "title": "プログラミング入門",
           "date": "2026-10-01",
@@ -70,13 +58,7 @@
           "date": "2026-11-01",
           "start": "11:00",
           "end": "12:00"
-        }
-      ]
-    },
-    {
-      "name": "飯田橋校",
-      "lineUrl": "https://line.me/R/ti/p/@028tlecq?oat_content=url&ts=07221501&openQrModal=true",
-      "courses": [
+        },
         {
           "title": "オリジナルWebページ開発",
           "date": "2027-02-20",
@@ -88,7 +70,13 @@
           "date": "2027-02-21",
           "start": "11:00",
           "end": "12:00"
-        },
+        }
+      ]
+    },
+    {
+      "name": "飯田橋校",
+      "lineUrl": "https://line.me/R/ti/p/@028tlecq?oat_content=url&ts=07221501&openQrModal=true",
+      "courses": [
         {
           "title": "電子工作",
           "date": "2026-08-20",
@@ -106,13 +94,7 @@
           "date": "2026-10-31",
           "start": "15:00",
           "end": "16:00"
-        }
-      ]
-    },
-    {
-      "name": "横浜校",
-      "lineUrl": "https://page.line.me/016pbnwr?oat_content=url&openQrModal=true",
-      "courses": [
+        },
         {
           "title": "オリジナルWebページ開発",
           "date": "2027-02-20",
@@ -121,10 +103,16 @@
         },
         {
           "title": "バイブコーディング",
-          "date": "2027-02-20",
-          "start": "13:00",
-          "end": "14:00"
-        },
+          "date": "2027-02-21",
+          "start": "11:00",
+          "end": "12:00"
+        }
+      ]
+    },
+    {
+      "name": "横浜校",
+      "lineUrl": "https://page.line.me/016pbnwr?oat_content=url&openQrModal=true",
+      "courses": [
         {
           "title": "ドローン体験",
           "date": "2026-10-08",
@@ -142,13 +130,7 @@
           "date": "2026-11-08",
           "start": "13:00",
           "end": "14:00"
-        }
-      ]
-    },
-    {
-      "name": "首里校",
-      "lineUrl": "https://line.me/R/ti/p/@153tdlvg?ts=07221502&oat_content=url&openQrModal=true",
-      "courses": [
+        },
         {
           "title": "オリジナルWebページ開発",
           "date": "2027-02-20",
@@ -160,7 +142,13 @@
           "date": "2027-02-20",
           "start": "13:00",
           "end": "14:00"
-        },
+        }
+      ]
+    },
+    {
+      "name": "首里校",
+      "lineUrl": "https://line.me/R/ti/p/@153tdlvg?ts=07221502&oat_content=url&openQrModal=true",
+      "courses": [
         {
           "title": "マインクラフト体験",
           "date": "2026-09-30",
@@ -178,6 +166,18 @@
           "date": "2026-10-24",
           "start": "10:00",
           "end": "11:00"
+        },
+        {
+          "title": "オリジナルWebページ開発",
+          "date": "2027-02-20",
+          "start": "11:00",
+          "end": "12:00"
+        },
+        {
+          "title": "バイブコーディング",
+          "date": "2027-02-20",
+          "start": "13:00",
+          "end": "14:00"
         }
       ]
     }

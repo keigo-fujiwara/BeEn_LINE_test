@@ -76,9 +76,17 @@ async function loadCampuses() {
     name: campus.name,
     lineUrl: campus.lineUrl,
     courses: (campus.courses || [])
+      .slice()
+      .sort(compareCourses)
       .filter(course => isCourseOpen(course.date, deadline))
       .map(formatCourseLabel)
   })).filter(campus => campus.name && campus.courses.length > 0);
+}
+
+function compareCourses(a, b) {
+  if (a.date !== b.date) return a.date < b.date ? -1 : 1;
+  if ((a.start || "") !== (b.start || "")) return (a.start || "") < (b.start || "") ? -1 : 1;
+  return (a.title || "").localeCompare(b.title || "", "ja");
 }
 
 function findCampus(name) {
