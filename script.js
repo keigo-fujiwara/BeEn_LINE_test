@@ -313,7 +313,7 @@ function requestGas(payload) {
     const script = document.createElement("script");
     const timer = setTimeout(() => {
       cleanup();
-      reject(new Error("LINEへ申込内容を送れませんでした。公式アカウントとのトークから開き直してください。"));
+      reject(new Error("スプレッドシートに保存できませんでした。Apps Scriptを最新のコードに更新してから、もう一度お試しください。"));
     }, 8000);
     function cleanup() {
       clearTimeout(timer);
@@ -326,7 +326,7 @@ function requestGas(payload) {
     };
     script.onerror = () => {
       cleanup();
-      reject(new Error("LINEへ申込内容を送れませんでした。公式アカウントとのトークから開き直してください。"));
+      reject(new Error("スプレッドシートに保存できませんでした。Apps Scriptを最新のコードに更新してから、もう一度お試しください。"));
     };
     const params = new URLSearchParams({
       callback: callbackName,
@@ -334,15 +334,6 @@ function requestGas(payload) {
     });
     script.src = `${GAS_URL}?${params.toString()}`;
     document.body.appendChild(script);
-  });
-}
-
-async function saveApplication(data) {
-  await fetch(GAS_URL, {
-    method: "POST",
-    mode: "no-cors",
-    headers: { "Content-Type": "text/plain;charset=utf-8" },
-    body: JSON.stringify(data)
   });
 }
 
@@ -357,21 +348,32 @@ async function submitApplication() {
   button.disabled = true;
   button.textContent = "送信中...";
 
+  let sentInChat = false;
   try {
     const messageText = buildMessage(data);
-    const sentInChat = await trySendInChat(messageText);
-    if (sentInChat) {
-      await saveApplication(data);
-    } else {
-      const userId = await getLineUserId();
-      const result = await requestGas({ ...data, userId, messageText, deliverLine: true });
-      if (!result.lineSent) {
-        throw new Error(result.message || "LINEへ申込内容を送れませんでした。公式アカウントを友だち追加し、トークから開き直してください。");
+    sentInChat = await trySendInChat(messageText);
+    const userId = await getLineUserId();
+    const result = await requestGas({
+      ...data,
+      userId,
+      messageText,
+      deliverLine: !sentInChat
+    });
+    if (!result || result.status !== "success") {
+      const detail = result && result.message ? result.message : "";
+      if (sentInChat) {
+        throw new Error("LINEへは送信しましたが、スプレッドシートに保存できませんでした。Apps Scriptを最新のコードに更新してください。");
       }
+      throw new Error(detail || "申込を保存できませんでした。");
     }
     showDone(data.campus);
   } catch (err) {
-    showError(err && err.message ? err.message : "送信できませんでした。もう一度お試しください。");
+    const detail = err && err.message ? err.message : "送信できませんでした。もう一度お試しください。";
+    if (sentInChat && detail.indexOf("スプレッドシート") === -1) {
+      showError("LINEへは送信しましたが、スプレッドシートに保存できませんでした。Apps Scriptを最新のコードに更新してください。");
+    } else {
+      showError(detail);
+    }
     button.disabled = false;
     button.textContent = "申込";
   }
