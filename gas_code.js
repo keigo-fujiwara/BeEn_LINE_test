@@ -39,6 +39,9 @@ function doPost(e) {
 }
 
 function saveApplication(data) {
+  if (!data || !data.name || !data.campus) {
+    return { status: "error", lineSent: false, message: "申込内容が不足しているため、保存できませんでした。" };
+  }
   var lineSent = false;
   if (data.deliverLine) {
     var pushResult = pushLineMessage(data.userId, data.messageText);
@@ -55,8 +58,10 @@ function appendApplication(data) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName("申込");
   if (!sheet) {
-    sheet = ss.insertSheet("申込");
+    sheet = ss.insertSheet("申込", 0);
   }
+  ss.setActiveSheet(sheet);
+  ss.moveActiveSheet(1);
   if (sheet.getLastRow() === 0) {
     sheet.appendRow(HEADERS);
   } else if (!sheet.getRange(1, 7).getValue()) {

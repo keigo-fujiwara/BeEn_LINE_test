@@ -318,13 +318,29 @@ async function getLineUserId() {
 }
 
 function requestGas(payload) {
+  return fetch(GAS_URL, {
+    method: "POST",
+    redirect: "follow",
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: JSON.stringify(payload)
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error("スプレッドシートに保存できませんでした。");
+      }
+      return response.json();
+    })
+    .catch(() => requestGasByScript(payload));
+}
+
+function requestGasByScript(payload) {
   return new Promise((resolve, reject) => {
     const callbackName = `gasCallback_${Date.now()}`;
     const script = document.createElement("script");
     const timer = setTimeout(() => {
       cleanup();
-      reject(new Error("スプレッドシートに保存できませんでした。Apps Scriptを最新のコードに更新してから、もう一度お試しください。"));
-    }, 8000);
+      reject(new Error("スプレッドシートに保存できませんでした。通信に時間がかかっています。もう一度お試しください。"));
+    }, 45000);
     function cleanup() {
       clearTimeout(timer);
       delete window[callbackName];
