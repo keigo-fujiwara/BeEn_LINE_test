@@ -83,9 +83,16 @@ h2 {
   display: block;
 }
 
+.hint {
+  margin: -8px 0 16px;
+  text-align: center;
+  color: #777;
+  font-size: 13px;
+}
+
 .choice {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 12px;
   margin-bottom: 10px;
   padding: 14px;
@@ -96,10 +103,14 @@ h2 {
   cursor: pointer;
 }
 
+.choice span {
+  flex: 1;
+}
+
 .choice input {
   width: 18px;
   height: 18px;
-  margin: 0;
+  margin: 3px 0 0;
   accent-color: #06C755;
   flex-shrink: 0;
 }
@@ -109,17 +120,19 @@ h2 {
   background: #f3fff6;
 }
 
-.step textarea {
+.step textarea,
+.step input[type="text"] {
   margin-bottom: 16px;
 }
 
-select, textarea {
+select, textarea, input[type="text"] {
   width: 100%;
   padding: 12px;
   border: 1px solid #ddd;
   border-radius: 8px;
   box-sizing: border-box;
-  font-size: 15px;
+  font-size: 16px;
+  font-family: inherit;
 }
 
 button {
@@ -131,12 +144,65 @@ button {
   border-radius: 8px;
   font-weight: bold;
   font-size: 16px;
+  font-family: inherit;
   cursor: pointer;
 }
 
 button:disabled {
   background: #ccc;
   cursor: not-allowed;
+}
+
+button.confirm-item {
+  display: block;
+  background: #fff;
+  color: #222;
+  border: 1px solid #ddd;
+  font-weight: normal;
+  text-align: left;
+  margin-bottom: 10px;
+}
+
+.confirm-label {
+  display: block;
+  color: #06C755;
+  font-size: 12px;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.confirm-value {
+  display: block;
+  white-space: pre-wrap;
+  line-height: 1.5;
+}
+
+.line-link {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 14px;
+  background: #06C755;
+  color: #fff;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 16px;
+  text-align: center;
+  text-decoration: none;
+  margin-bottom: 10px;
+}
+
+#restart-btn {
+  background: #fff;
+  color: #06C755;
+  border: 1px solid #06C755;
+}
+
+#back-btn {
+  background: #fff;
+  color: #666;
+  border: 1px solid #ccc;
+  margin-top: 10px;
 }
 
 #status {

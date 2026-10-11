@@ -1,18 +1,26 @@
 // データ保存処理（POST）
-// 保存する列: 送信日時, 学年, 性別, イベントの感想, 良かった点, その他のメッセージ, 今後参加したいイベント
+// 保存先シート: 申込
+// 列: 送信日時, 新学年, 校舎, 無料講座, 参加者氏名, 学校名
 function doPost(e) {
   try {
     var data = JSON.parse(e.postData.contents);
-    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName("申込");
+    if (!sheet) {
+      sheet = ss.insertSheet("申込");
+    }
+    if (sheet.getLastRow() === 0) {
+      sheet.appendRow(["送信日時", "新学年", "校舎", "無料講座", "参加者氏名", "学校名"]);
+    }
 
+    var courses = Array.isArray(data.courses) ? data.courses.join("、") : (data.courses || "");
     sheet.appendRow([
       new Date(),
       data.grade,
-      data.gender,
-      data.satisfaction,
-      data.highlight,
-      data.message,
-      data.future
+      data.campus,
+      courses,
+      data.name,
+      data.school
     ]);
 
     return ContentService.createTextOutput(JSON.stringify({ status: "success" }))

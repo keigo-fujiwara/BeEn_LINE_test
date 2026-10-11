@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>アンケート</title>
+  <title>無料講座の申込</title>
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <meta http-equiv="Cache-Control" content="no-cache">
   <link rel="stylesheet" href="style.css?v=4">
@@ -12,76 +12,60 @@
   <div class="card">
     <div id="status">読み込み中...</div>
 
-    <div id="consent-step" style="display:none;">
-      <h2 id="survey-title">イベントアンケート</h2>
+    <div id="apply-flow" style="display:none;">
+      <h2>2027年度 春の無料講座</h2>
+      <form id="apply-form">
+        <section class="step" data-step="1" data-required="true">
+          <p class="progress">1 / 5</p>
+          <p class="question">4月からの新学年を選んでください。</p>
+          <div id="grade-list"></div>
+          <button type="button" class="next-btn" disabled>次へ進む</button>
+        </section>
 
-      <div class="meta-box">
-        <div class="meta-item"><span class="meta-label">実施期間：</span>2026年10月10日 〜 2026年10月31日</div>
-        <div class="meta-item"><span class="meta-label">概要：</span>本日のイベントについてのご感想をお聞かせください。</div>
-      </div>
+        <section class="step" data-step="2" data-required="true">
+          <p class="progress">2 / 5</p>
+          <p class="question">校舎を選んでください。</p>
+          <div id="campus-list"></div>
+          <button type="button" class="next-btn" disabled>次へ進む</button>
+        </section>
 
-      <div class="notice-text">
-        このアンケートは運営者が実施しています。アカウント運営者は個人を特定できない形で回答結果のみ確認します。
-      </div>
+        <section class="step" data-step="3" data-required="true">
+          <p class="progress">3 / 5</p>
+          <p class="question">受講する無料講座を選んでください。</p>
+          <p class="hint">複数選択できます。</p>
+          <div id="course-list"></div>
+          <button type="button" class="next-btn" disabled>次へ進む</button>
+        </section>
 
-      <button type="button" id="start-btn">同意して回答する</button>
+        <section class="step" data-step="4" data-required="true">
+          <p class="progress">4 / 5</p>
+          <p class="question">参加者氏名を入力してください。</p>
+          <input type="text" id="participant" name="participant" maxlength="50" autocomplete="name" placeholder="例）山田 花子">
+          <button type="button" class="next-btn" disabled>次へ進む</button>
+        </section>
+
+        <section class="step" data-step="5" data-required="true">
+          <p class="progress">5 / 5</p>
+          <p class="question">学校名を入力してください。</p>
+          <input type="text" id="school" name="school" maxlength="80" autocomplete="organization" placeholder="例）〇〇中学校">
+          <button type="button" class="next-btn" disabled>確認画面へ</button>
+        </section>
+
+        <section class="step" data-step="6">
+          <p class="question">申込内容の確認</p>
+          <p class="hint">修正する項目をタップしてください。</p>
+          <div id="confirm-list"></div>
+          <button type="button" id="submit-btn">申込</button>
+        </section>
+      </form>
     </div>
 
-    <form id="survey-form" style="display:none;">
-      <section class="step" data-step="1" data-required="true">
-        <p class="progress">1 / 6</p>
-        <p class="question">お子様の学年を教えてください。</p>
-        <label class="choice"><input type="radio" name="grade" value="小学４年生">小学４年生</label>
-        <label class="choice"><input type="radio" name="grade" value="小学５年生">小学５年生</label>
-        <label class="choice"><input type="radio" name="grade" value="小学６年生">小学６年生</label>
-        <button type="button" class="next-btn" disabled>次へ進む</button>
-      </section>
-
-      <section class="step" data-step="2" data-required="true">
-        <p class="progress">2 / 6</p>
-        <p class="question">お子様の性別を教えてください。</p>
-        <label class="choice"><input type="radio" name="gender" value="男の子">男の子</label>
-        <label class="choice"><input type="radio" name="gender" value="女の子">女の子</label>
-        <label class="choice"><input type="radio" name="gender" value="回答しない">回答しない</label>
-        <button type="button" class="next-btn" disabled>次へ進む</button>
-      </section>
-
-      <section class="step" data-step="3" data-required="true">
-        <p class="progress">3 / 6</p>
-        <p class="question">本日のイベントはいかがでしたか？</p>
-        <label class="choice"><input type="radio" name="satisfaction" value="大変満足">大変満足</label>
-        <label class="choice"><input type="radio" name="satisfaction" value="満足">満足</label>
-        <label class="choice"><input type="radio" name="satisfaction" value="普通">普通</label>
-        <label class="choice"><input type="radio" name="satisfaction" value="やや不満">やや不満</label>
-        <label class="choice"><input type="radio" name="satisfaction" value="不満">不満</label>
-        <button type="button" class="next-btn" disabled>次へ進む</button>
-      </section>
-
-      <section class="step" data-step="4">
-        <p class="progress">4 / 6</p>
-        <p class="question">今日一番良かった部分、面白かった部分、ためになった部分を教えてください。</p>
-        <textarea name="highlight" rows="4" placeholder="ご自由にご記入ください"></textarea>
-        <button type="button" class="next-btn">次へ進む</button>
-      </section>
-
-      <section class="step" data-step="5">
-        <p class="progress">5 / 6</p>
-        <p class="question">その他、ご感想やメッセージがございましたらご自由にお書きください。</p>
-        <textarea name="message" rows="4" placeholder="ご自由にご記入ください"></textarea>
-        <button type="button" class="next-btn">次へ進む</button>
-      </section>
-
-      <section class="step" data-step="6">
-        <p class="progress">6 / 6</p>
-        <p class="question">今後、参加してみたいイベントやテーマがあれば教えてください。</p>
-        <textarea name="future" rows="4" placeholder="ご自由にご記入ください"></textarea>
-        <button type="submit" id="submit-btn">送信する</button>
-      </section>
-    </form>
-
     <div id="done-step" style="display:none;">
-      <h2>送信完了</h2>
-      <p class="done-text">回答ありがとうございました。</p>
+      <h2>申込完了</h2>
+      <p id="done-thanks" class="done-text"></p>
+      <p id="done-guide" class="notice-text"></p>
+      <a id="campus-line-link" class="line-link">友だち追加する</a>
+      <button type="button" id="restart-btn">他の校舎でも申し込む</button>
       <button type="button" id="back-btn">戻る</button>
     </div>
   </div>
