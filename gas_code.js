@@ -1,10 +1,10 @@
 // データ保存処理
 // 保存先シート: 申込
-// 列: 送信日時, 新学年, 校舎, 無料講座, 参加者氏名, 学校名, LINEユーザーID
+// 列: 送信日時, 新学年, 校舎, 無料講座, 参加者氏名, 学校名
 //
 // トーク以外（リッチメニューなど）から開いた申込を、公式アカウントから本人のLINEへ送るには
 // スクリプト プロパティ LINE_CHANNEL_ACCESS_TOKEN にチャネルアクセストークンを設定する。
-var HEADERS = ["送信日時", "新学年", "校舎", "無料講座", "参加者氏名", "学校名", "LINEユーザーID"];
+var HEADERS = ["送信日時", "新学年", "校舎", "無料講座", "参加者氏名", "学校名"];
 
 function doGet(e) {
   var callback = "callback";
@@ -44,7 +44,7 @@ function saveApplication(data) {
   }
   var lineSent = false;
   if (data.deliverLine) {
-    var pushResult = pushLineMessage(data.userId, data.messageText);
+    var pushResult = pushLineMessage(data.userId, data.messageText, data.flexMessage);
     if (!pushResult.ok) {
       return { status: "error", lineSent: false, message: pushResult.message };
     }
@@ -64,23 +64,64 @@ function appendApplication(data) {
   ss.moveActiveSheet(1);
   if (sheet.getLastRow() === 0) {
     sheet.appendRow(HEADERS);
-  } else if (!sheet.getRange(1, 7).getValue()) {
-    sheet.getRange(1, 7).setValue("LINEユーザーID");
+  }
+  if (sheet.getRange(1, 7).getValue() === "LINEユーザーID") {
+    sheet.getRange(1, 7).clearContent();
+  }
+  if (sheet.getColumnWidth(4) < 420) {
+    sheet.setColumnWidth(4, 420);
   }
 
-  var courses = Array.isArray(data.courses) ? data.courses.join("、") : (data.courses || "");
+  var courseLines = courseLinesFrom(data.courses);
   sheet.appendRow([
     new Date(),
     data.grade || "",
     data.campus || "",
-    courses,
+    courseLines.join("\n"),
     data.name || "",
-    data.school || "",
-    data.userId || ""
+    data.school || ""
   ]);
+
+  var lastRow = sheet.getLastRow();
+  var courseCell = sheet.getRange(lastRow, 4);
+  courseCell.setWrap(true);
+  courseCell.setVerticalAlignment("top");
+  var lineCount = visualLineCount(courseLines, sheet.getColumnWidth(4));
+  if (lineCount > 1) {
+    sheet.setRowHeight(lastRow, lineCount * 27);
+  }
 }
 
-function pushLineMessage(userId, text) {
+function visualLineCount(lines, columnWidth) {
+  var usable = Math.max(columnWidth - 16, 80);
+  var total = 0;
+  for (var i = 0; i < lines.length; i++) {
+    var width = 0;
+    var text = lines[i];
+    for (var j = 0; j < text.length; j++) {
+      width += text.charCodeAt(j) > 255 ? 13 : 7;
+    }
+    total += Math.max(1, Math.ceil(width / usable));
+  }
+  return Math.max(total, 1);
+}
+
+function courseLinesFrom(courses) {
+  var lines = [];
+  if (Array.isArray(courses)) {
+    lines = courses;
+  } else if (courses) {
+    lines = String(courses).split(/\n|、/);
+  }
+  var result = [];
+  for (var i = 0; i < lines.length; i++) {
+    var line = String(lines[i] || "").replace(/^\s+|\s+$/g, "");
+    if (line) result.push(line);
+  }
+  return result;
+}
+
+function pushLineMessage(userId, text, flexMessage) {
   var token = PropertiesService.getScriptProperties().getProperty("LINE_CHANNEL_ACCESS_TOKEN");
   if (!token) {
     return {
@@ -88,7 +129,7 @@ function pushLineMessage(userId, text) {
       message: "LINEへ申込内容を送れませんでした。公式アカウントとのトークから開き直してください。"
     };
   }
-  if (!userId || !text) {
+  if (!userId || (!text && !flexMessage)) {
     return {
       ok: false,
       message: "LINEへ申込内容を送れませんでした。公式アカウントとのトークから開き直してください。"
@@ -101,7 +142,7 @@ function pushLineMessage(userId, text) {
     headers: { Authorization: "Bearer " + token },
     payload: JSON.stringify({
       to: userId,
-      messages: [{ type: "text", text: text }]
+      messages: [flexMessage && flexMessage.type ? flexMessage : { type: "text", text: text }]
     }),
     muteHttpExceptions: true
   });

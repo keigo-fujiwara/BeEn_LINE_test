@@ -257,6 +257,71 @@ function buildMessage(data) {
   ].join("\n");
 }
 
+function flexField(label, value) {
+  return {
+    type: "box",
+    layout: "vertical",
+    spacing: "xs",
+    contents: [
+      { type: "text", text: label, size: "xs", color: "#06C755", weight: "bold" },
+      { type: "text", text: value || " ", size: "sm", color: "#222222", wrap: true }
+    ]
+  };
+}
+
+function buildFlexMessage(data) {
+  const courseContents = data.courses.map((course, index) => ({
+    type: "text",
+    text: course,
+    size: "sm",
+    color: "#222222",
+    wrap: true,
+    margin: index === 0 ? "sm" : "md"
+  }));
+
+  return {
+    type: "flex",
+    altText: "2027年度 春の無料講座の申込を受け付けました",
+    contents: {
+      type: "bubble",
+      size: "mega",
+      header: {
+        type: "box",
+        layout: "vertical",
+        backgroundColor: "#06C755",
+        paddingAll: "18px",
+        contents: [
+          { type: "text", text: "申込を受け付けました", color: "#FFFFFF", weight: "bold", size: "lg" },
+          { type: "text", text: "2027年度 春の無料講座", color: "#E7FFEF", size: "sm", margin: "sm" }
+        ]
+      },
+      body: {
+        type: "box",
+        layout: "vertical",
+        spacing: "lg",
+        paddingAll: "18px",
+        contents: [
+          flexField("新学年", data.grade),
+          flexField("校舎", data.campus),
+          flexField("参加者氏名", data.name),
+          flexField("学校名", data.school),
+          { type: "separator" },
+          { type: "text", text: "無料講座", size: "xs", color: "#06C755", weight: "bold" },
+          ...courseContents,
+          { type: "separator" },
+          {
+            type: "text",
+            text: `${data.campus}からのご連絡をお待ちください。`,
+            size: "xs",
+            color: "#888888",
+            wrap: true
+          }
+        ]
+      }
+    }
+  };
+}
+
 function showDone(campusName) {
   const campus = findCampus(campusName);
   document.getElementById("done-thanks").textContent =
@@ -289,13 +354,13 @@ function isInvalidReceiver(err) {
   return code === "INVALID_RECEIVER" || /INVALID_RECEIVER|invalid receiver/i.test(message);
 }
 
-async function trySendInChat(text) {
+async function trySendInChat(message) {
   if (typeof liff === "undefined" || !liff.isInClient()) return false;
   const context = liff.getContext ? liff.getContext() : null;
   const inChat = context && ["utou", "group", "room"].includes(context.type);
   if (!inChat) return false;
   try {
-    await liff.sendMessages([{ type: "text", text }]);
+    await liff.sendMessages([message]);
     return true;
   } catch (err) {
     if (isInvalidReceiver(err)) return false;
@@ -377,12 +442,14 @@ async function submitApplication() {
   let sentInChat = false;
   try {
     const messageText = buildMessage(data);
-    sentInChat = await trySendInChat(messageText);
+    const flexMessage = buildFlexMessage(data);
+    sentInChat = await trySendInChat(flexMessage);
     const userId = await getLineUserId();
     const result = await requestGas({
       ...data,
       userId,
       messageText,
+      flexMessage,
       deliverLine: !sentInChat
     });
     if (!result || result.status !== "success") {
