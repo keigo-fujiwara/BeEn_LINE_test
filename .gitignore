@@ -1,0 +1,10 @@
+# 環境変数ファイル（ローカル用データ）
+.env
+.env.local
+.env.*.local
+
+# OS・エディタ生成ファイル
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

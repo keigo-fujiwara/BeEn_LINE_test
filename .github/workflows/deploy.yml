@@ -1,0 +1,56 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: ["main"]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install envsubst
+        run: sudo apt-get update && sudo apt-get install -y gettext-base
+
+      - name: Inject LIFF ID and GAS URL
+        env:
+          LIFF_ID: ${{ vars.LIFF_ID }}
+          GAS_URL: ${{ vars.GAS_URL }}
+        run: |
+          if [ -z "$LIFF_ID" ] || [ -z "$GAS_URL" ]; then
+            echo "LIFF_ID または GAS_URL がリポジトリ変数に設定されていません"
+            exit 1
+          fi
+          envsubst '$LIFF_ID $GAS_URL' < script.js > script.js.tmp
+          mv script.js.tmp script.js
+          sed -i "s/?v=4/?v=${{ github.sha }}/g" index.html
+          if grep -q '\$LIFF_ID\|\$GAS_URL' script.js; then
+            echo "プレースホルダーが残っています"
+            exit 1
+          fi
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
