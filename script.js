@@ -55,6 +55,7 @@ const CAMPUSES = [
 ];
 
 let returnToConfirm = false;
+let coursesForCampus = "";
 
 function updateStatus(msg) {
   const statusEl = document.getElementById("status");
@@ -151,6 +152,14 @@ function createChoice(type, name, value, checked) {
   return label;
 }
 
+function clearCourseSelections() {
+  document.querySelectorAll("input[name='courses']").forEach(input => {
+    input.checked = false;
+    const choice = input.closest(".choice");
+    if (choice) choice.classList.remove("is-selected");
+  });
+}
+
 function renderCourses() {
   const campus = findCampus(selectedRadio("campus"));
   const keep = new Set(selectedCourses());
@@ -207,6 +216,12 @@ function showStep(stepNumber) {
 function goNext(step) {
   const stepNumber = Number(step.dataset.step);
   if (!isStepValid(stepNumber)) return;
+  if (stepNumber === 2 && selectedRadio("campus") !== coursesForCampus) {
+    clearCourseSelections();
+  }
+  if (stepNumber === 3) {
+    coursesForCampus = selectedRadio("campus");
+  }
   if (returnToConfirm && stepNumber === 2) {
     showStep(3);
     return;
@@ -248,6 +263,7 @@ function showDone(campusName) {
 
 function resetForm() {
   returnToConfirm = false;
+  coursesForCampus = "";
   document.getElementById("apply-form").reset();
   document.querySelectorAll(".choice.is-selected").forEach(choice => {
     choice.classList.remove("is-selected");
