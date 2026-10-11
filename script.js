@@ -114,7 +114,9 @@ function refreshNav(step) {
   if (!nextBtn) return;
   const stepNumber = Number(step.dataset.step);
   nextBtn.disabled = !isStepValid(stepNumber);
-  if (returnToConfirm) {
+  if (returnToConfirm && stepNumber === 2) {
+    nextBtn.textContent = "無料講座を選ぶ";
+  } else if (returnToConfirm) {
     nextBtn.textContent = "確認画面に戻る";
   } else if (stepNumber === 5) {
     nextBtn.textContent = "確認画面へ";
@@ -205,7 +207,7 @@ function showStep(stepNumber) {
 function goNext(step) {
   const stepNumber = Number(step.dataset.step);
   if (!isStepValid(stepNumber)) return;
-  if (returnToConfirm && stepNumber === 2 && selectedCourses().length === 0) {
+  if (returnToConfirm && stepNumber === 2) {
     showStep(3);
     return;
   }
@@ -255,6 +257,79 @@ function resetForm() {
   showStep(1);
 }
 
+function isInvalidReceiver(err) {
+  const code = err && err.code ? String(err.code) : "";
+  const message = err && err.message ? String(err.message) : "";
+  return code === "INVALID_RECEIVER" || /INVALID_RECEIVER|invalid receiver/i.test(message);
+}
+
+async function trySendInChat(text) {
+  if (typeof liff === "undefined" || !liff.isInClient()) return false;
+  const context = liff.getContext ? liff.getContext() : null;
+  const inChat = context && ["utou", "group", "room"].includes(context.type);
+  if (!inChat) return false;
+  try {
+    await liff.sendMessages([{ type: "text", text }]);
+    return true;
+  } catch (err) {
+    if (isInvalidReceiver(err)) return false;
+    if (/permission|403|FORBIDDEN/i.test(err && err.message ? err.message : "")) {
+      throw new Error("LINEへ申込内容を送れませんでした。LIFFのスコープ「chat_message.write」を有効にし、トークのメッセージから開き直してください。");
+    }
+    throw new Error("LINEへ申込内容を送れませんでした。公式アカウントとのトークから開き直してください。");
+  }
+}
+
+async function getLineUserId() {
+  try {
+    const context = liff.getContext ? liff.getContext() : null;
+    if (context && context.userId) return context.userId;
+    const profile = await liff.getProfile();
+    return profile.userId || "";
+  } catch (err) {
+    return "";
+  }
+}
+
+function requestGas(payload) {
+  return new Promise((resolve, reject) => {
+    const callbackName = `gasCallback_${Date.now()}`;
+    const script = document.createElement("script");
+    const timer = setTimeout(() => {
+      cleanup();
+      reject(new Error("LINEへ申込内容を送れませんでした。公式アカウントとのトークから開き直してください。"));
+    }, 8000);
+    function cleanup() {
+      clearTimeout(timer);
+      delete window[callbackName];
+      script.remove();
+    }
+    window[callbackName] = result => {
+      cleanup();
+      resolve(result || {});
+    };
+    script.onerror = () => {
+      cleanup();
+      reject(new Error("LINEへ申込内容を送れませんでした。公式アカウントとのトークから開き直してください。"));
+    };
+    const params = new URLSearchParams({
+      callback: callbackName,
+      payload: JSON.stringify(payload)
+    });
+    script.src = `${GAS_URL}?${params.toString()}`;
+    document.body.appendChild(script);
+  });
+}
+
+async function saveApplication(data) {
+  await fetch(GAS_URL, {
+    method: "POST",
+    mode: "no-cors",
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: JSON.stringify(data)
+  });
+}
+
 async function submitApplication() {
   const data = readForm();
   if (!data.grade || !data.campus || data.courses.length === 0 || !data.name || !data.school) {
@@ -266,29 +341,21 @@ async function submitApplication() {
   button.disabled = true;
   button.textContent = "送信中...";
 
-  let sentToLine = false;
   try {
-    if (typeof liff === "undefined" || !liff.isInClient()) {
-      throw new Error("申込内容をLINEへ送るには、LINEのトークから開いてください。");
+    const messageText = buildMessage(data);
+    const sentInChat = await trySendInChat(messageText);
+    if (sentInChat) {
+      await saveApplication(data);
+    } else {
+      const userId = await getLineUserId();
+      const result = await requestGas({ ...data, userId, messageText, deliverLine: true });
+      if (!result.lineSent) {
+        throw new Error(result.message || "LINEへ申込内容を送れませんでした。公式アカウントを友だち追加し、トークから開き直してください。");
+      }
     }
-    await liff.sendMessages([{ type: "text", text: buildMessage(data) }]);
-    sentToLine = true;
-    await fetch(GAS_URL, {
-      method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify(data)
-    });
     showDone(data.campus);
   } catch (err) {
-    const detail = err && err.message ? err.message : "";
-    if (sentToLine) {
-      showError("LINEへは送信しましたが、申込の保存に失敗しました。もう一度押すと、LINEに同じ内容が再度送られます。");
-    } else if (/permission|403|FORBIDDEN/i.test(detail)) {
-      showError("LINEへ申込内容を送れませんでした。LIFFのスコープ「chat_message.write」を有効にし、トークのメッセージから開き直してください。");
-    } else {
-      showError(detail || "送信できませんでした。もう一度お試しください。");
-    }
+    showError(err && err.message ? err.message : "送信できませんでした。もう一度お試しください。");
     button.disabled = false;
     button.textContent = "申込";
   }

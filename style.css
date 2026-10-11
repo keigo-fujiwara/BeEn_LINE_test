@@ -90,6 +90,19 @@ h2 {
   font-size: 13px;
 }
 
+.edit-hint {
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  background: #e9f9ef;
+  border: 2px solid #06C755;
+  border-radius: 8px;
+  color: #067a34;
+  font-size: 15px;
+  font-weight: bold;
+  text-align: center;
+  line-height: 1.5;
+}
+
 .choice {
   display: flex;
   align-items: flex-start;
