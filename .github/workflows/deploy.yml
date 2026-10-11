@@ -37,7 +37,7 @@ jobs:
           fi
           envsubst '$LIFF_ID $GAS_URL' < script.js > script.js.tmp
           mv script.js.tmp script.js
-          sed -i "s/?v=4/?v=${{ github.sha }}/g" index.html
+          sed -i "s/?v=4/?v=${{ github.sha }}/g" index.html script.js
           if grep -q '\$LIFF_ID\|\$GAS_URL' script.js; then
             echo "プレースホルダーが残っています"
             exit 1

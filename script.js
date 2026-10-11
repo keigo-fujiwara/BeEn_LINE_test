@@ -11,48 +11,16 @@ const GRADES = [
   "新高校３年生"
 ];
 
-const CAMPUSES = [
-  {
-    name: "京大本校",
-    lineUrl: "https://page.line.me/942ydzjx?oat_content=url&openQrModal=true",
-    courses: [
-      "オリジナルWebページ開発 2月20日（土）11:00-12:00",
-      "バイブコーディング 2月21日（日）11:00-12:00"
-    ]
-  },
-  {
-    name: "梅田校",
-    lineUrl: "https://line.me/R/ti/p/@759lvtlr?openQrModal=true",
-    courses: [
-      "オリジナルWebページ開発 2月20日（土）11:00-12:00",
-      "バイブコーディング 2月21日（日）11:00-12:00"
-    ]
-  },
-  {
-    name: "飯田橋校",
-    lineUrl: "https://line.me/R/ti/p/@028tlecq?oat_content=url&ts=07221501&openQrModal=true",
-    courses: [
-      "オリジナルWebページ開発 2月20日（土）11:00-12:00",
-      "バイブコーディング 2月21日（日）11:00-12:00"
-    ]
-  },
-  {
-    name: "横浜校",
-    lineUrl: "https://page.line.me/016pbnwr?oat_content=url&openQrModal=true",
-    courses: [
-      "オリジナルWebページ開発 2月20日（土）11:00-12:00",
-      "バイブコーディング 2月20日（土）13:00-14:00"
-    ]
-  },
-  {
-    name: "首里校",
-    lineUrl: "https://line.me/R/ti/p/@153tdlvg?ts=07221502&oat_content=url&openQrModal=true",
-    courses: [
-      "オリジナルWebページ開発 2月20日（土）11:00-12:00",
-      "バイブコーディング 2月20日（土）13:00-14:00"
-    ]
-  }
+const CAMPUS_LIST = [
+  { name: "京大本校", lineUrl: "https://page.line.me/942ydzjx?oat_content=url&openQrModal=true" },
+  { name: "梅田校", lineUrl: "https://line.me/R/ti/p/@759lvtlr?openQrModal=true" },
+  { name: "飯田橋校", lineUrl: "https://line.me/R/ti/p/@028tlecq?oat_content=url&ts=07221501&openQrModal=true" },
+  { name: "横浜校", lineUrl: "https://page.line.me/016pbnwr?oat_content=url&openQrModal=true" },
+  { name: "首里校", lineUrl: "https://line.me/R/ti/p/@153tdlvg?ts=07221502&oat_content=url&openQrModal=true" }
 ];
+
+const WEEKDAYS = ["日", "月", "火", "水", "木", "金", "土"];
+let CAMPUSES = [];
 
 let returnToConfirm = false;
 let coursesForCampus = "";
@@ -76,6 +44,49 @@ function showError(msg) {
 function selectedRadio(name) {
   const checked = document.querySelector(`input[name="${name}"]:checked`);
   return checked ? checked.value : "";
+}
+
+function jstTodayUtc() {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Tokyo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit"
+  }).formatToParts(new Date());
+  const value = type => Number(parts.find(part => part.type === type).value);
+  return Date.UTC(value("year"), value("month") - 1, value("day"));
+}
+
+function daysUntilCourse(dateStr) {
+  const [year, month, day] = dateStr.split("-").map(Number);
+  return (Date.UTC(year, month - 1, day) - jstTodayUtc()) / 86400000;
+}
+
+function isCourseOpen(dateStr, closeDaysBefore) {
+  return daysUntilCourse(dateStr) > closeDaysBefore;
+}
+
+function formatCourseLabel(course) {
+  const [year, month, day] = course.date.split("-").map(Number);
+  const weekday = WEEKDAYS[new Date(Date.UTC(year, month - 1, day)).getUTCDay()];
+  return `${course.title} ${month}月${day}日（${weekday}）${course.start}-${course.end}`;
+}
+
+async function loadCampuses() {
+  const response = await fetch("courses.json?v=4");
+  if (!response.ok) {
+    throw new Error("講座情報を読み込めませんでした。");
+  }
+  const catalog = await response.json();
+  const closeDaysBefore = Number(catalog.closeDaysBefore);
+  const deadline = Number.isFinite(closeDaysBefore) ? closeDaysBefore : 2;
+  CAMPUSES = CAMPUS_LIST.map(campus => ({
+    name: campus.name,
+    lineUrl: campus.lineUrl,
+    courses: (catalog.courses || [])
+      .filter(course => course.campus === campus.name && isCourseOpen(course.date, deadline))
+      .map(formatCourseLabel)
+  })).filter(campus => campus.courses.length > 0);
 }
 
 function findCampus(name) {
@@ -165,7 +176,14 @@ function renderCourses() {
   const keep = new Set(selectedCourses());
   const list = document.getElementById("course-list");
   list.replaceChildren();
-  if (!campus) return;
+  if (!campus || campus.courses.length === 0) {
+    const note = document.createElement("p");
+    note.className = "hint";
+    note.textContent = "この校舎で申し込みできる無料講座はありません。";
+    list.appendChild(note);
+    refreshNav(document.querySelector(".step[data-step='3']"));
+    return;
+  }
   campus.courses.forEach(course => {
     list.appendChild(createChoice("checkbox", "courses", course, keep.has(course)));
   });
@@ -416,7 +434,22 @@ function setupForm() {
 }
 
 window.addEventListener("DOMContentLoaded", () => {
-  setupForm();
+  updateStatus("講座情報を読み込み中...");
+  loadCampuses()
+    .then(() => {
+      if (CAMPUSES.length === 0) {
+        showError("現在申し込みできる無料講座はありません。");
+        return;
+      }
+      setupForm();
+      startLiff();
+    })
+    .catch(err => {
+      showError(err && err.message ? err.message : "講座情報を読み込めませんでした。");
+    });
+});
+
+function startLiff() {
   updateStatus("LINE SDK初期化中...");
 
   if (typeof liff === "undefined") {
@@ -437,4 +470,4 @@ window.addEventListener("DOMContentLoaded", () => {
     .catch(err => {
       showError(`初期化エラー: ${err.message || err}`);
     });
-});
+}
