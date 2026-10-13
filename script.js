@@ -80,6 +80,11 @@ async function loadCampuses() {
   CAMPUSES = (catalog.campuses || []).map(campus => ({
     name: campus.name,
     lineUrl: campus.lineUrl,
+    address: campus.address || "",
+    access: campus.access || "",
+    mapUrl: campus.address
+      ? "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(campus.address)
+      : "",
     courses: (campus.courses || [])
       .slice()
       .sort(compareCourses)
@@ -307,8 +312,51 @@ function buildMessage(data) {
     "無料講座：",
     courses,
     `参加者氏名：${data.name}`,
-    `学校名：${data.school}`
+    `学校名：${data.school}`,
+    ...campusGuideLines(data.campus)
   ].join("\n");
+}
+
+function campusGuideLines(campusName) {
+  const campus = findCampus(campusName);
+  if (!campus || !campus.address) return [];
+  return [
+    "校舎のご案内：",
+    campus.address,
+    campus.access,
+    campus.mapUrl
+  ].filter(Boolean);
+}
+
+function flexCampusGuide(campusName) {
+  const campus = findCampus(campusName);
+  if (!campus || !campus.address) return [];
+  const contents = [
+    { type: "separator" },
+    { type: "text", text: "校舎のご案内", size: "sm", color: "#06C755", weight: "bold" },
+    { type: "text", text: campus.address, size: "lg", color: "#222222", wrap: true, margin: "sm" }
+  ];
+  if (campus.access) {
+    contents.push({
+      type: "text",
+      text: campus.access,
+      size: "md",
+      color: "#555555",
+      wrap: true,
+      margin: "sm"
+    });
+  }
+  if (campus.mapUrl) {
+    contents.push({
+      type: "button",
+      style: "link",
+      height: "sm",
+      color: "#06C755",
+      margin: "md",
+      action: { type: "uri", label: "地図を開く", uri: campus.mapUrl }
+    });
+  }
+  return contents;
 }
 
 function flexField(label, value) {
@@ -317,8 +365,8 @@ function flexField(label, value) {
     layout: "vertical",
     spacing: "xs",
     contents: [
-      { type: "text", text: label, size: "xs", color: "#06C755", weight: "bold" },
-      { type: "text", text: value || " ", size: "sm", color: "#222222", wrap: true }
+      { type: "text", text: label, size: "sm", color: "#06C755", weight: "bold" },
+      { type: "text", text: value || " ", size: "lg", color: "#222222", wrap: true }
     ]
   };
 }
@@ -326,13 +374,13 @@ function flexField(label, value) {
 function flexCourse(label, index) {
   const course = courseParts(label);
   const contents = [
-    { type: "text", text: course.title, size: "sm", color: "#222222", weight: "bold", wrap: true }
+    { type: "text", text: course.title, size: "lg", color: "#222222", weight: "bold", wrap: true }
   ];
   if (course.datetime) {
     contents.push({
       type: "text",
       text: course.datetime,
-      size: "xs",
+      size: "md",
       color: "#888888",
       wrap: true,
       margin: "xs"
@@ -361,8 +409,8 @@ function buildFlexMessage(data) {
         backgroundColor: "#06C755",
         paddingAll: "18px",
         contents: [
-          { type: "text", text: "申込を受け付けました", color: "#FFFFFF", weight: "bold", size: "lg" },
-          { type: "text", text: "2027年度 春の無料講座", color: "#E7FFEF", size: "sm", margin: "sm" }
+          { type: "text", text: "申込を受け付けました", color: "#FFFFFF", weight: "bold", size: "xl", wrap: true },
+          { type: "text", text: "2027年度 春の無料講座", color: "#E7FFEF", size: "md", margin: "sm", wrap: true }
         ]
       },
       body: {
@@ -376,14 +424,15 @@ function buildFlexMessage(data) {
           flexField("参加者氏名", data.name),
           flexField("学校名", data.school),
           { type: "separator" },
-          { type: "text", text: "無料講座", size: "xs", color: "#06C755", weight: "bold" },
+          { type: "text", text: "無料講座", size: "sm", color: "#06C755", weight: "bold" },
           ...courseContents,
+          ...flexCampusGuide(data.campus),
           { type: "separator" },
           {
             type: "text",
             text: `${data.campus}からのご連絡をお待ちください。`,
-            size: "xs",
-            color: "#888888",
+            size: "md",
+            color: "#555555",
             wrap: true
           }
         ]
