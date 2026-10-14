@@ -7,6 +7,22 @@
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <meta http-equiv="Cache-Control" content="no-cache">
   <link rel="stylesheet" href="style.css?v=4">
+  <script>
+    (() => {
+      const currentBuild = "__BUILD_VERSION__";
+      if (currentBuild.startsWith("__")) return;
+      fetch(`latest-build.json?t=${Date.now()}`, { cache: "no-store" })
+        .then(response => response.json())
+        .then(({ version }) => {
+          if (!version || version === currentBuild) return;
+          const url = new URL(window.location.href);
+          if (url.searchParams.get("build") === version) return;
+          url.searchParams.set("build", version);
+          window.location.replace(url.toString());
+        })
+        .catch(() => {});
+    })();
+  </script>
 </head>
 <body>
   <div class="card">
