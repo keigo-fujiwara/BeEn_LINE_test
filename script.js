@@ -529,7 +529,8 @@ function resetForm() {
     choice.classList.remove("is-selected");
   });
   document.getElementById("done-step").style.display = "none";
-  document.getElementById("apply-flow").style.display = "block";
+  document.getElementById("apply-flow").style.display = "none";
+  document.getElementById("consent-step").style.display = "block";
   showStep(1);
 }
 
@@ -691,6 +692,12 @@ function closeLine() {
   history.back();
 }
 
+function startApplication() {
+  document.getElementById("consent-step").style.display = "none";
+  document.getElementById("apply-flow").style.display = "block";
+  showStep(1);
+}
+
 function setupForm() {
   const gradeList = document.getElementById("grade-list");
   GRADES.forEach(grade => gradeList.appendChild(createChoice("radio", "grade", grade, false)));
@@ -715,6 +722,7 @@ function setupForm() {
     event.preventDefault();
   });
   document.getElementById("submit-btn").addEventListener("click", submitApplication);
+  document.getElementById("consent-btn").addEventListener("click", startApplication);
   document.getElementById("restart-btn").addEventListener("click", resetForm);
   document.getElementById("back-btn").addEventListener("click", closeLine);
 }
@@ -750,8 +758,7 @@ function startLiff() {
         return;
       }
       document.getElementById("status").style.display = "none";
-      document.getElementById("apply-flow").style.display = "block";
-      showStep(1);
+      document.getElementById("consent-step").style.display = "block";
     })
     .catch(err => {
       showError(`初期化エラー: ${err.message || err}`);
