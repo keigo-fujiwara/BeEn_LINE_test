@@ -500,6 +500,9 @@ function resetForm() {
   returnToConfirm = false;
   coursesForCampus = "";
   document.getElementById("apply-form").reset();
+  const submitButton = document.getElementById("submit-btn");
+  submitButton.disabled = false;
+  submitButton.textContent = "申込";
   document.querySelectorAll(".choice.is-selected").forEach(choice => {
     choice.classList.remove("is-selected");
   });
