@@ -53,8 +53,25 @@ h2 {
 }
 
 .done-text {
-  margin: 0 0 20px;
+  margin: 0 0 16px;
   text-align: center;
+  white-space: pre-line;
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.line-guide {
+  margin: 0 0 16px;
+  padding: 14px;
+  background: #f4fbf6;
+  border: 2px solid #0f9b20;
+  border-radius: 8px;
+  color: #0b6b16;
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+  line-height: 1.7;
+  white-space: pre-line;
 }
 
 .notice-text {

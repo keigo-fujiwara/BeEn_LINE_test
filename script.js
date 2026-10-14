@@ -485,9 +485,9 @@ function buildFlexMessage(data) {
 function showDone(campusName) {
   const campus = findCampus(campusName);
   document.getElementById("done-thanks").textContent =
-    `申込ありがとうございました。${campusName}からのご連絡をお待ちください。`;
+    `申込ありがとうございました。\n${campusName}からのご連絡をお待ちください。`;
   document.getElementById("done-guide").textContent =
-    `今後の詳細連絡のため、以下の【${campusName}専用LINE】を友だち追加してください。`;
+    `このあとのご連絡は\n${campusName}専用LINEで届きます。\n下のボタンから友だち追加してください。`;
   const link = document.getElementById("campus-line-link");
   link.href = campus.lineUrl;
   link.textContent = `${campusName}専用LINEを友だち追加する`;
