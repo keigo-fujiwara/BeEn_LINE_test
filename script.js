@@ -423,6 +423,17 @@ function flexCourse(label, index) {
   };
 }
 
+function flexLogo() {
+  return {
+    type: "image",
+    url: "https://keigo-fujiwara.github.io/BeEn_LINE_test/logo_color.png",
+    size: "lg",
+    aspectRatio: "5:2",
+    aspectMode: "fit",
+    align: "center"
+  };
+}
+
 function buildFlexMessage(data) {
   const courseContents = data.courses.map((label, index) => flexCourse(label, index));
 
@@ -448,6 +459,7 @@ function buildFlexMessage(data) {
         spacing: "lg",
         paddingAll: "18px",
         contents: [
+          flexLogo(),
           flexField("新学年", data.grade),
           flexField("校舎", data.campus),
           flexField("参加者氏名", data.name),
