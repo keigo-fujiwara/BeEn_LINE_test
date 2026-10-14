@@ -4,7 +4,8 @@
     {
       "name": "京大本校",
       "lineUrl": "https://page.line.me/942ydzjx?oat_content=url&openQrModal=true",
-      "address": "〒606-8301 京都府京都市左京区吉田泉殿町1-34 ダイショウ百万遍ビル1・2F",
+      "postalCode": "〒606-8301",
+      "address": "京都府京都市左京区吉田泉殿町１−３４ ダイショウ百万遍ビル1階",
       "access": "出町柳駅から徒歩10分",
       "courses": [
         {
@@ -42,7 +43,8 @@
     {
       "name": "梅田校",
       "lineUrl": "https://line.me/R/ti/p/@759lvtlr?openQrModal=true",
-      "address": "〒530-0012 大阪府大阪市北区芝田1-4-14 芝田町ビル5F",
+      "postalCode": "〒530-0012",
+      "address": "大阪府大阪市北区芝田１丁目４−１４ 芝田町ビル 5F",
       "access": "阪急梅田駅（茶屋町口）から徒歩1分",
       "courses": [
         {
@@ -80,7 +82,8 @@
     {
       "name": "飯田橋校",
       "lineUrl": "https://line.me/R/ti/p/@028tlecq?oat_content=url&ts=07221501&openQrModal=true",
-      "address": "〒102-0071 東京都千代田区富士見2-12-13 フィル・パーク Kagulab.IIDABASHI",
+      "postalCode": "〒102-0071",
+      "address": "東京都千代田区富士見２丁目１２−１３ フィル・パーク Kagulab.IIDABASHI",
       "access": "飯田橋駅から徒歩5分",
       "courses": [
         {
@@ -118,7 +121,8 @@
     {
       "name": "横浜校",
       "lineUrl": "https://page.line.me/016pbnwr?oat_content=url&openQrModal=true",
-      "address": "〒220-0012 神奈川県横浜市西区みなとみらい2-2-1 横浜ランドマークタワー14F",
+      "postalCode": "〒220-0012",
+      "address": "神奈川県横浜市西区みなとみらい 2-2-1 横浜ランドマークタワー 14F",
       "access": "みなとみらい駅から徒歩2分",
       "courses": [
         {
@@ -156,7 +160,8 @@
     {
       "name": "首里校",
       "lineUrl": "https://line.me/R/ti/p/@153tdlvg?ts=07221502&oat_content=url&openQrModal=true",
-      "address": "〒903-0806 沖縄県那覇市首里汀良町1丁目27",
+      "postalCode": "〒903-0806",
+      "address": "沖縄県那覇市首里汀良町１-２７",
       "access": "ゆいレール首里駅から徒歩2分",
       "courses": [
         {

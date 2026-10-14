@@ -80,10 +80,11 @@ async function loadCampuses() {
   CAMPUSES = (catalog.campuses || []).map(campus => ({
     name: campus.name,
     lineUrl: campus.lineUrl,
+    postalCode: campus.postalCode || "",
     address: campus.address || "",
     access: campus.access || "",
     mapUrl: campus.address
-      ? "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(campus.address)
+      ? "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(`${campus.postalCode || ""} ${campus.address}`.trim())
       : "",
     courses: (campus.courses || [])
       .slice()
@@ -309,7 +310,7 @@ function buildMessage(data) {
     "【2027年度 春の無料講座 申込】",
     `新学年：${data.grade}`,
     `校舎：${data.campus}`,
-    "無料講座：",
+    "申込講座：",
     courses,
     `参加者氏名：${data.name}`,
     `学校名：${data.school}`,
@@ -322,6 +323,7 @@ function campusGuideLines(campusName) {
   if (!campus || !campus.address) return [];
   return [
     "校舎のご案内：",
+    campus.postalCode,
     campus.address,
     campus.access,
     campus.mapUrl
@@ -333,14 +335,31 @@ function flexCampusGuide(campusName) {
   if (!campus || !campus.address) return [];
   const contents = [
     { type: "separator" },
-    { type: "text", text: "校舎のご案内", size: "sm", color: "#06C755", weight: "bold" },
-    { type: "text", text: campus.address, size: "lg", color: "#222222", wrap: true, margin: "sm" }
+    { type: "text", text: "校舎のご案内", size: "sm", color: "#06C755", weight: "bold" }
   ];
+  if (campus.postalCode) {
+    contents.push({
+      type: "text",
+      text: campus.postalCode,
+      size: "sm",
+      color: "#222222",
+      wrap: true,
+      margin: "sm"
+    });
+  }
+  contents.push({
+    type: "text",
+    text: campus.address,
+    size: "sm",
+    color: "#222222",
+    wrap: true,
+    margin: "sm"
+  });
   if (campus.access) {
     contents.push({
       type: "text",
       text: campus.access,
-      size: "md",
+      size: "sm",
       color: "#555555",
       wrap: true,
       margin: "sm"
@@ -381,7 +400,7 @@ function flexCourse(label, index) {
       type: "text",
       text: course.datetime,
       size: "md",
-      color: "#888888",
+      color: "#333333",
       wrap: true,
       margin: "xs"
     });
@@ -424,7 +443,7 @@ function buildFlexMessage(data) {
           flexField("参加者氏名", data.name),
           flexField("学校名", data.school),
           { type: "separator" },
-          { type: "text", text: "無料講座", size: "sm", color: "#06C755", weight: "bold" },
+          { type: "text", text: "申込講座", size: "sm", color: "#06C755", weight: "bold" },
           ...courseContents,
           ...flexCampusGuide(data.campus),
           { type: "separator" },
