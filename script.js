@@ -531,14 +531,20 @@ async function trySendInChat(message) {
   }
 }
 
-async function getLineUserId() {
+async function getLineProfile() {
   try {
-    const context = liff.getContext ? liff.getContext() : null;
-    if (context && context.userId) return context.userId;
     const profile = await liff.getProfile();
-    return profile.userId || "";
+    return {
+      userId: profile.userId || "",
+      displayName: profile.displayName || ""
+    };
   } catch (err) {
-    return "";
+    try {
+      const context = liff.getContext ? liff.getContext() : null;
+      return { userId: context && context.userId ? context.userId : "", displayName: "" };
+    } catch (contextError) {
+      return { userId: "", displayName: "" };
+    }
   }
 }
 
@@ -604,10 +610,14 @@ async function submitApplication() {
     const messageText = buildMessage(data);
     const flexMessage = buildFlexMessage(data);
     sentInChat = await trySendInChat(flexMessage);
-    const userId = await getLineUserId();
+    const profile = await getLineProfile();
+    const courseDetails = data.courses.map(courseParts);
     const result = await requestGas({
       ...data,
-      userId,
+      courseTitles: courseDetails.map(course => course.title),
+      courseDatetimes: courseDetails.map(course => course.datetime),
+      lineName: profile.displayName,
+      userId: profile.userId,
       messageText,
       flexMessage,
       deliverLine: !sentInChat
