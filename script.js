@@ -487,7 +487,7 @@ function showDone(campusName) {
   document.getElementById("done-thanks").textContent =
     `申込ありがとうございました。\n${campusName}からのご連絡をお待ちください。`;
   document.getElementById("done-guide").textContent =
-    `このあとのご連絡は\n${campusName}専用LINEで届きます。\n下のボタンから友だち追加してください。`;
+    `今後のご連絡について、${campusName}専用LINEにご登録していただくとスムーズになります。ぜひ下のボタンから友だち追加をお願いいたします。`;
   const link = document.getElementById("campus-line-link");
   link.href = campus.lineUrl;
   link.textContent = `${campusName}専用LINEを友だち追加する`;
