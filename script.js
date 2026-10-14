@@ -16,6 +16,28 @@ let CAMPUSES = [];
 
 let returnToConfirm = false;
 let coursesForCampus = "";
+let loadingDotsTimer = null;
+
+function showSending() {
+  const overlay = document.getElementById("loading-overlay");
+  const dots = document.getElementById("loading-dots");
+  if (!overlay || !dots) return;
+  let count = 1;
+  dots.textContent = ".";
+  overlay.hidden = false;
+  clearInterval(loadingDotsTimer);
+  loadingDotsTimer = setInterval(() => {
+    count = count % 3 + 1;
+    dots.textContent = ".".repeat(count);
+  }, 500);
+}
+
+function hideSending() {
+  clearInterval(loadingDotsTimer);
+  loadingDotsTimer = null;
+  const overlay = document.getElementById("loading-overlay");
+  if (overlay) overlay.hidden = true;
+}
 
 function updateStatus(msg) {
   const statusEl = document.getElementById("status");
@@ -611,6 +633,7 @@ async function submitApplication() {
   const button = document.getElementById("submit-btn");
   button.disabled = true;
   button.textContent = "送信中...";
+  showSending();
 
   let sentInChat = false;
   let lineDelivered = false;
@@ -655,6 +678,8 @@ async function submitApplication() {
     }
     button.disabled = false;
     button.textContent = "申込";
+  } finally {
+    hideSending();
   }
 }
 
