@@ -40,7 +40,7 @@ function doPost(e) {
     var data = JSON.parse(e.postData.contents);
     if (data && Array.isArray(data.events)) {
       handleLineWebhook(data);
-      return ContentService.createTextOutput(JSON.stringify({ status: "success", version: 4 }))
+      return ContentService.createTextOutput(JSON.stringify({ status: "success", version: 5 }))
         .setMimeType(ContentService.MimeType.JSON);
     }
     var result = saveApplication(data);
@@ -67,8 +67,31 @@ function saveApplication(data) {
     }
     lineSent = true;
   }
+  if (!data.lineName && data.userId) {
+    data.lineName = getLineDisplayName(data.userId);
+  }
   appendApplication(data);
   return { status: "success", lineSent: lineSent, message: "" };
+}
+
+function getLineDisplayName(userId) {
+  var token = PropertiesService.getScriptProperties().getProperty("LINE_CHANNEL_ACCESS_TOKEN");
+  if (!token || !userId) return "";
+  try {
+    var response = UrlFetchApp.fetch(
+      "https://api.line.me/v2/bot/profile/" + encodeURIComponent(userId),
+      {
+        method: "get",
+        headers: { Authorization: "Bearer " + token },
+        muteHttpExceptions: true
+      }
+    );
+    if (response.getResponseCode() < 200 || response.getResponseCode() >= 300) return "";
+    var profile = JSON.parse(response.getContentText() || "{}");
+    return profile.displayName || "";
+  } catch (error) {
+    return "";
+  }
 }
 
 function appendApplication(data) {

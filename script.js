@@ -487,7 +487,7 @@ function showDone(campusName) {
   document.getElementById("done-thanks").textContent =
     `申込ありがとうございました。\n${campusName}からのご連絡をお待ちください。`;
   document.getElementById("done-guide").textContent =
-    `今後のご連絡について、${campusName}専用LINEにご登録していただくとスムーズになります。ぜひ下のボタンから友だち追加をお願いいたします。`;
+    `今後のご連絡は、${campusName}専用LINEで行います。\n友だち追加をお願いいたします。`;
   const link = document.getElementById("campus-line-link");
   link.href = campus.lineUrl;
   link.textContent = `${campusName}専用LINEを友だち追加する`;
@@ -541,7 +541,11 @@ async function getLineProfile() {
   } catch (err) {
     try {
       const context = liff.getContext ? liff.getContext() : null;
-      return { userId: context && context.userId ? context.userId : "", displayName: "" };
+      const decoded = liff.getDecodedIDToken ? liff.getDecodedIDToken() : null;
+      return {
+        userId: context && context.userId ? context.userId : "",
+        displayName: decoded && decoded.name ? decoded.name : ""
+      };
     } catch (contextError) {
       return { userId: "", displayName: "" };
     }
