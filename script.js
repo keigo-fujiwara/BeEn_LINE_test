@@ -256,7 +256,12 @@ function appendCourseLines(container, labels) {
     title.textContent = course ? course.title : label;
     const datetime = document.createElement("span");
     datetime.className = "confirm-course-datetime";
-    datetime.textContent = course ? course.datetime : "";
+    if (course && course.datetime) {
+      const datetimeLabel = document.createElement("span");
+      datetimeLabel.className = "confirm-course-datetime-label";
+      datetimeLabel.textContent = "日時";
+      datetime.append(datetimeLabel, course.datetime);
+    }
     block.append(title, datetime);
     container.appendChild(block);
   });
@@ -397,18 +402,23 @@ function flexCourse(label, index) {
   ];
   if (course.datetime) {
     contents.push({
-      type: "text",
-      text: course.datetime,
-      size: "md",
-      color: "#333333",
-      wrap: true,
-      margin: "xs"
+      type: "box",
+      layout: "baseline",
+      spacing: "sm",
+      margin: "md",
+      contents: [
+        { type: "text", text: "日時", size: "sm", color: "#0f9b20", weight: "bold", flex: 0 },
+        { type: "text", text: course.datetime, size: "md", color: "#222222", wrap: true, flex: 1 }
+      ]
     });
   }
   return {
     type: "box",
     layout: "vertical",
-    margin: index === 0 ? "sm" : "lg",
+    backgroundColor: "#f4fbf6",
+    cornerRadius: "8px",
+    paddingAll: "14px",
+    margin: index === 0 ? "md" : "lg",
     contents
   };
 }

@@ -15,6 +15,13 @@ body {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
+.brand-logo {
+  display: block;
+  width: 168px;
+  height: auto;
+  margin: 0 auto 16px;
+}
+
 h2 {
   color: #06C755;
   text-align: center;
@@ -128,8 +135,7 @@ h2 {
   line-height: 1.4;
 }
 
-.choice-datetime,
-.confirm-course-datetime {
+.choice-datetime {
   display: block;
   margin-top: 2px;
   color: #666;
@@ -138,8 +144,28 @@ h2 {
   line-height: 1.4;
 }
 
+.confirm-course-datetime {
+  display: block;
+  margin-top: 6px;
+  color: #222;
+  font-size: 15px;
+  font-weight: normal;
+  line-height: 1.4;
+}
+
+.confirm-course-datetime-label {
+  display: inline-block;
+  margin-right: 8px;
+  color: #0f9b20;
+  font-size: 13px;
+  font-weight: bold;
+}
+
 .confirm-course {
   display: block;
+  padding: 10px 12px;
+  background: #f4fbf6;
+  border-radius: 8px;
 }
 
 .confirm-course + .confirm-course {
