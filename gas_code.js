@@ -1,6 +1,7 @@
 // データ保存処理
 // 保存先シート: 申込
 // 列: 送信日時, 新学年, 校舎, 講座名, 日時, 参加者氏名, 学校名, LINE表示名
+// 複数講座は講座ごとに1行とし、申込者情報は各行へ同じ内容を保存する。
 //
 // トーク以外（リッチメニューなど）から開いた申込を、公式アカウントから本人のLINEへ送るには
 // スクリプト プロパティ LINE_CHANNEL_ACCESS_TOKEN にチャネルアクセストークンを設定する。
@@ -16,7 +17,7 @@ function doGet(e) {
   }
   reformatCourseColumn();
   if (!e || !e.parameter || !e.parameter.payload) {
-    return ContentService.createTextOutput(JSON.stringify({ status: "success", version: 6 }))
+    return ContentService.createTextOutput(JSON.stringify({ status: "success", version: 7 }))
       .setMimeType(ContentService.MimeType.JSON);
   }
   var callback = "callback";
@@ -41,7 +42,7 @@ function doPost(e) {
     var data = JSON.parse(e.postData.contents);
     if (data && Array.isArray(data.events)) {
       handleLineWebhook(data);
-      return ContentService.createTextOutput(JSON.stringify({ status: "success", version: 6 }))
+      return ContentService.createTextOutput(JSON.stringify({ status: "success", version: 7 }))
         .setMimeType(ContentService.MimeType.JSON);
     }
     var result = saveApplication(data);
@@ -106,18 +107,31 @@ function appendApplication(data) {
   ensureApplicationSheet(sheet);
 
   var courses = splitCourseLines(data.courseTitles, data.courseDatetimes, data.courses);
-  sheet.appendRow([
-    new Date(),
-    data.grade || "",
-    data.campus || "",
-    courses.titles.join("\n"),
-    courses.datetimes.join("\n"),
-    data.name || "",
-    data.school || "",
-    data.lineName || ""
-  ]);
+  var courseCount = Math.max(courses.titles.length, courses.datetimes.length, 1);
+  var submittedAt = new Date();
+  var rows = [];
+  for (var i = 0; i < courseCount; i++) {
+    rows.push([
+      submittedAt,
+      data.grade || "",
+      data.campus || "",
+      courses.titles[i] || "",
+      courses.datetimes[i] || "",
+      data.name || "",
+      data.school || "",
+      data.lineName || ""
+    ]);
+  }
+  ensureRowCapacity(sheet, sheet.getLastRow() + rows.length);
+  sheet.getRange(sheet.getLastRow() + 1, 1, rows.length, HEADERS.length).setValues(rows);
 
   layoutCourseColumns(sheet);
+}
+
+function ensureRowCapacity(sheet, requiredLastRow) {
+  if (requiredLastRow > sheet.getMaxRows()) {
+    sheet.insertRowsAfter(sheet.getMaxRows(), requiredLastRow - sheet.getMaxRows());
+  }
 }
 
 function ensureApplicationSheet(sheet) {
@@ -200,7 +214,37 @@ function reformatCourseColumn() {
   var sheet = ss.getSheetByName("申込");
   if (!sheet) return 0;
   ensureApplicationSheet(sheet);
+  expandCourseRows(sheet);
   return layoutCourseColumns(sheet);
+}
+
+function expandCourseRows(sheet) {
+  var lastRow = sheet.getLastRow();
+  if (lastRow < 2) return 0;
+  var sourceRange = sheet.getRange(2, 1, lastRow - 1, HEADERS.length);
+  var sourceRows = sourceRange.getValues();
+  var expandedRows = [];
+  var expandedCount = 0;
+
+  for (var i = 0; i < sourceRows.length; i++) {
+    var row = sourceRows[i];
+    var titles = listFrom(row[3]);
+    var datetimes = listFrom(row[4]);
+    var courseCount = Math.max(titles.length, datetimes.length, 1);
+    if (courseCount > 1) expandedCount += courseCount - 1;
+    for (var j = 0; j < courseCount; j++) {
+      var expanded = row.slice();
+      expanded[3] = titles[j] || "";
+      expanded[4] = datetimes[j] || "";
+      expandedRows.push(expanded);
+    }
+  }
+
+  if (expandedCount === 0) return 0;
+  ensureRowCapacity(sheet, expandedRows.length + 1);
+  sourceRange.clearContent();
+  sheet.getRange(2, 1, expandedRows.length, HEADERS.length).setValues(expandedRows);
+  return expandedCount;
 }
 
 function layoutCourseColumns(sheet) {
@@ -220,7 +264,7 @@ function layoutCourseColumns(sheet) {
       visualLineCount(titleLines, sheet.getColumnWidth(4)),
       visualLineCount(timeLines, sheet.getColumnWidth(5))
     );
-    if (lineCount > 1) sheet.setRowHeight(i + 2, lineCount * 32);
+    sheet.setRowHeight(i + 2, Math.max(32, lineCount * 32));
   }
   return lastRow - 1;
 }
