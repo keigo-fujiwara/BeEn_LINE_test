@@ -126,6 +126,26 @@ function findCampus(name) {
   return CAMPUSES.find(campus => campus.name === name) || null;
 }
 
+function renderCampusPreview() {
+  const campus = findCampus(selectedRadio("campus"));
+  const preview = document.getElementById("campus-preview");
+  if (!preview) return;
+  preview.hidden = !campus;
+  if (!campus) return;
+
+  document.getElementById("campus-preview-name").textContent = campus.name;
+  const postal = document.getElementById("campus-preview-postal");
+  postal.textContent = campus.postalCode;
+  postal.hidden = !campus.postalCode;
+  document.getElementById("campus-preview-address").textContent = campus.address;
+  const access = document.getElementById("campus-preview-access");
+  access.textContent = campus.access;
+  access.hidden = !campus.access;
+  const mapLink = document.getElementById("campus-map-link");
+  mapLink.href = campus.mapUrl;
+  mapLink.hidden = !campus.mapUrl;
+}
+
 function selectedCourses() {
   const campus = findCampus(selectedRadio("campus"));
   if (!campus) return [];
@@ -200,6 +220,7 @@ function createChoice(type, name, value, checked, course) {
     } else {
       label.classList.toggle("is-selected", input.checked);
     }
+    if (name === "campus") renderCampusPreview();
     refreshNav(label.closest(".step"));
   });
   label.append(input, text);
@@ -295,6 +316,7 @@ function showStep(stepNumber) {
     step.classList.toggle("is-active", step.dataset.step === String(stepNumber));
   });
   if (stepNumber === 3) renderCourses();
+  if (stepNumber === 2) renderCampusPreview();
   if (stepNumber === 6) renderConfirm();
   const active = document.querySelector(".step.is-active");
   if (active) refreshNav(active);
@@ -528,6 +550,7 @@ function resetForm() {
   document.querySelectorAll(".choice.is-selected").forEach(choice => {
     choice.classList.remove("is-selected");
   });
+  renderCampusPreview();
   document.getElementById("done-step").style.display = "none";
   document.getElementById("apply-flow").style.display = "none";
   document.getElementById("consent-step").style.display = "block";

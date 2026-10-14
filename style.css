@@ -316,6 +316,63 @@ h2 {
   background: #f3fff6;
 }
 
+.campus-preview {
+  margin: 4px 0 16px;
+  padding: 14px;
+  background: #f4fbf6;
+  border: 1px solid #a9deb2;
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.campus-preview[hidden] {
+  display: none;
+}
+
+.campus-preview p {
+  margin: 0;
+}
+
+.campus-preview-name {
+  color: #0f9b20;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.campus-preview-postal {
+  margin-top: 6px !important;
+  color: #555;
+}
+
+.campus-preview-address {
+  color: #222;
+}
+
+.campus-preview-access {
+  margin-top: 6px !important;
+  color: #555;
+}
+
+.campus-map-link {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  margin-top: 12px;
+  padding: 10px;
+  background: #fff;
+  border: 1px solid #0f9b20;
+  border-radius: 7px;
+  color: #0f9b20;
+  font-weight: bold;
+  text-align: center;
+  text-decoration: none;
+}
+
+.campus-map-link[hidden] {
+  display: none;
+}
+
 .step textarea,
 .step input[type="text"] {
   margin-bottom: 16px;
