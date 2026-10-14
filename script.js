@@ -613,34 +613,43 @@ async function submitApplication() {
   button.textContent = "送信中...";
 
   let sentInChat = false;
+  let lineDelivered = false;
   try {
     const messageText = buildMessage(data);
     const flexMessage = buildFlexMessage(data);
     sentInChat = await trySendInChat(flexMessage);
+    lineDelivered = sentInChat;
     const profile = await getLineProfile();
     const courseDetails = data.courses.map(courseParts);
-    const result = await requestGas({
-      ...data,
-      courseTitles: courseDetails.map(course => course.title),
-      courseDatetimes: courseDetails.map(course => course.datetime),
-      lineName: profile.displayName,
-      userId: profile.userId,
-      messageText,
-      flexMessage,
-      deliverLine: !sentInChat
-    });
-    if (!result || result.status !== "success") {
-      const detail = result && result.message ? result.message : "";
-      if (sentInChat) {
-        throw new Error("LINEへは送信しましたが、スプレッドシートに保存できませんでした。Apps Scriptを最新のコードに更新してください。");
+    const submittedAt = new Date().toISOString();
+    for (let index = 0; index < courseDetails.length; index += 1) {
+      const course = courseDetails[index];
+      const result = await requestGas({
+        ...data,
+        courses: [data.courses[index]],
+        courseTitles: [course.title],
+        courseDatetimes: [course.datetime],
+        submittedAt,
+        lineName: profile.displayName,
+        userId: profile.userId,
+        messageText,
+        flexMessage,
+        deliverLine: !sentInChat && index === 0
+      });
+      if (!result || result.status !== "success") {
+        const detail = result && result.message ? result.message : "";
+        if (lineDelivered) {
+          throw new Error("LINEへは送信しましたが、スプレッドシートに保存できませんでした。もう一度お試しください。");
+        }
+        throw new Error(detail || "申込を保存できませんでした。");
       }
-      throw new Error(detail || "申込を保存できませんでした。");
+      lineDelivered = lineDelivered || Boolean(result.lineSent);
     }
     showDone(data.campus);
   } catch (err) {
     const detail = err && err.message ? err.message : "送信できませんでした。もう一度お試しください。";
-    if (sentInChat && detail.indexOf("スプレッドシート") === -1) {
-      showError("LINEへは送信しましたが、スプレッドシートに保存できませんでした。Apps Scriptを最新のコードに更新してください。");
+    if (lineDelivered && detail.indexOf("スプレッドシート") === -1) {
+      showError("LINEへは送信しましたが、スプレッドシートに保存できませんでした。もう一度お試しください。");
     } else {
       showError(detail);
     }

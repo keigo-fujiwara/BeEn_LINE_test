@@ -108,7 +108,8 @@ function appendApplication(data) {
 
   var courses = splitCourseLines(data.courseTitles, data.courseDatetimes, data.courses);
   var courseCount = Math.max(courses.titles.length, courses.datetimes.length, 1);
-  var submittedAt = new Date();
+  var submittedAt = data.submittedAt ? new Date(data.submittedAt) : new Date();
+  if (isNaN(submittedAt.getTime())) submittedAt = new Date();
   var rows = [];
   for (var i = 0; i < courseCount; i++) {
     rows.push([
