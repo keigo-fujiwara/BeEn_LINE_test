@@ -14,9 +14,9 @@ function doGet(e) {
     return ContentService.createTextOutput(last || "{\"status\":\"none\"}")
       .setMimeType(ContentService.MimeType.JSON);
   }
-  if (e && e.parameter && e.parameter.reformat === "1") {
-    var count = reformatCourseColumn();
-    return ContentService.createTextOutput(JSON.stringify({ status: "success", reformatted: count }))
+  reformatCourseColumn();
+  if (!e || !e.parameter || !e.parameter.payload) {
+    return ContentService.createTextOutput(JSON.stringify({ status: "success", version: 6 }))
       .setMimeType(ContentService.MimeType.JSON);
   }
   var callback = "callback";
@@ -37,10 +37,11 @@ function doGet(e) {
 
 function doPost(e) {
   try {
+    reformatCourseColumn();
     var data = JSON.parse(e.postData.contents);
     if (data && Array.isArray(data.events)) {
       handleLineWebhook(data);
-      return ContentService.createTextOutput(JSON.stringify({ status: "success", version: 5 }))
+      return ContentService.createTextOutput(JSON.stringify({ status: "success", version: 6 }))
         .setMimeType(ContentService.MimeType.JSON);
     }
     var result = saveApplication(data);
